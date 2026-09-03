@@ -131,6 +131,12 @@ export default function Dashboard() {
           <h3>Отпуск</h3>
           <p>Подать заявку на IC или OOC отпуск</p>
         </div>
+        
+        <div className="card" onClick={() => router.push('/forms/withdrawal')}>
+          <div className="card-icon">🚫</div>
+          <h3>Снятие ЧС</h3>
+          <p>Подать заявку на снятие ЧС</p>
+        </div>
       </div>
 
       <style jsx>{`
