@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
-const DISCORD_CLIENT_ID = '1543995099292106772';
-const DISCORD_REDIRECT_URI = 'https://bot-kik.vercel.app/api/auth';
+const DISCORD_CLIENT_ID = '1539336745714188318';
+const DISCORD_REDIRECT_URI = 'murimi-mu.vercel.app/api/auth';
 
 export default function Home() {
   const router = useRouter();
