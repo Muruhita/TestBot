@@ -36,7 +36,9 @@ const webhooks = {
   reinstatement: process.env.WEBHOOK_REINSTATEMENT,
   transferToFib: process.env.WEBHOOK_TRANSFER_TO_FIB,
   weaponRequest: process.env.WEBHOOK_WEAPON_REQUEST,
-  leave: process.env.WEBHOOK_LEAVE
+  leave: process.env.WEBHOOK_LEAVE,
+  withdrawal: process.env.WEBHOOK_WITHDRAWAL
+};
 };
 
 async function sendToDiscord(webhookUrl, data, retries = 3) {
