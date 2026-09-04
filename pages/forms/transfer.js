@@ -61,6 +61,8 @@ export default function TransferForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Проверки прямо в обработчике
     if (isSameDepartment) {
       alert('❌ Нельзя перевестись в тот же отдел!');
       return;
@@ -69,6 +71,15 @@ export default function TransferForm() {
       alert('❌ Для перевода в FA необходим ранг 5 или выше!');
       return;
     }
+    if (showCidFields && (!formData.cidExperience || !formData.cidExamples || !formData.cidServers || !formData.cidKnowledge || !formData.cidLawKnowledge)) {
+      alert('❌ Пожалуйста, заполните все дополнительные вопросы для CID!');
+      return;
+    }
+    if (showFaFields && (!formData.faRules || !formData.faPrevious)) {
+      alert('❌ Пожалуйста, заполните все дополнительные вопросы для FA!');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const res = await fetch('/api/submit', {
@@ -81,7 +92,13 @@ export default function TransferForm() {
           rank: formData.rank,
           currentDepartment: formData.currentDepartment,
           reason: formData.reason,
-          ...formData
+          cidExperience: formData.cidExperience,
+          cidExamples: formData.cidExamples,
+          cidServers: formData.cidServers,
+          cidKnowledge: formData.cidKnowledge,
+          cidLawKnowledge: formData.cidLawKnowledge,
+          faRules: formData.faRules,
+          faPrevious: formData.faPrevious
         })
       });
       if (res.ok) {
@@ -167,7 +184,7 @@ export default function TransferForm() {
               </>
             )}
 
-            <button type="submit" className="submit-btn" disabled={submitting || !isFormValid()}>
+            <button type="submit" className="submit-btn" disabled={submitting}>
               {submitting ? '⏳ Отправка...' : '📤 Отправить заявку'}
             </button>
           </form>
@@ -178,7 +195,7 @@ export default function TransferForm() {
         .form-page { min-height: calc(100vh - 60px); padding: 30px; }
         .back-btn { background: rgba(255, 255, 255, 0.08); color: #aaa; border: 1px solid rgba(255, 255, 255, 0.15); padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; transition: all 0.3s; font-size: 14px; }
         .back-btn:hover { background: rgba(255, 255, 255, 0.15); color: white; transform: translateY(-2px); }
-        .form-container { max-width: 600px; margin: 0 auto; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border-radius: 20px; padding: 40px; border: 1px solid rgba(255, 255, 255, 0.1); position: relative; animation: fadeIn 0.5s ease; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); }
+        .form-container { max-width: 600px; margin: 0 auto; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border-radius: 20px; padding: 40px; border: 1px solid rgba(255, 255, 255, 0.1); animation: fadeIn 0.5s ease; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); }
         h1 { color: white; margin-bottom: 30px; }
         h3 { color: #888; margin-bottom: 10px; }
         .form-group { margin-bottom: 20px; }
