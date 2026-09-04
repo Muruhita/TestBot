@@ -7,25 +7,43 @@ export default function Profile() {
   const [banned, setBanned] = useState(false);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+      setError('Превышено время ожидания. Проверьте подключение к Redis.');
+    }, 8000); // Если через 8 секунд нет ответа, показываем ошибку
+
     fetch('/api/profile')
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          setStatus(data.error);
+      .then(async res => {
+        const data = await res.json();
+        clearTimeout(timer); // Сбрасываем таймер, если ответ пришел
+
+        if (!res.ok) {
+          setError(data.error || 'Ошибка загрузки');
           setLoading(false);
           return;
         }
+
+        if (data.error) {
+          setError(data.error);
+          setLoading(false);
+          return;
+        }
+
         setUser(data.user);
         setNickname(data.nickname || '');
         setBanned(data.banned);
         setLoading(false);
       })
       .catch(() => {
-        setStatus('Ошибка загрузки профиля. Проверьте подключение к Redis.');
+        clearTimeout(timer);
+        setError('Не удалось подключиться к серверу');
         setLoading(false);
       });
+
+    return () => clearTimeout(timer);
   }, []);
 
   const saveNickname = async () => {
@@ -43,9 +61,19 @@ export default function Profile() {
       <div className="profile-container">
         <h1>👤 Профиль</h1>
         
+        {/* Загрузка */}
         {loading && <p className="loading-text">Загрузка данных...</p>}
-        
-        {!loading && user && (
+
+        {/* Ошибка */}
+        {!loading && error && (
+          <div className="error-box">
+            <p>⚠️ {error}</p>
+            <p style={{ fontSize: '14px', color: '#888' }}>Убедитесь, что на Vercel задана переменная REDIS_URL</p>
+          </div>
+        )}
+
+        {/* Профиль */}
+        {!loading && !error && user && (
           <div className="profile-card">
             <img src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} alt="Avatar" className="avatar" />
             <h2>{user.username}</h2>
@@ -60,10 +88,6 @@ export default function Profile() {
               {status && <p className="status-msg">{status}</p>}
             </div>
           </div>
-        )}
-
-        {!loading && !user && (
-          <p className="error-text">Не удалось загрузить данные профиля. {status}</p>
         )}
       </div>
 
@@ -81,8 +105,12 @@ export default function Profile() {
           color: #888;
           font-size: 18px;
         }
-        .error-text {
-          color: #ff4444;
+        .error-box {
+          background: rgba(255, 0, 0, 0.1);
+          border: 1px solid #ff4444;
+          padding: 20px;
+          border-radius: 12px;
+          color: #ff8080;
           font-size: 16px;
         }
         .profile-card {
