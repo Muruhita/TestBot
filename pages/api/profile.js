@@ -1,9 +1,7 @@
-import Redis from 'ioredis';
+import redis from '../../lib/redis';
 import { verifyToken } from '../../lib/discord';
 import { containsBadWords } from '../../lib/badwords';
 import { isBlacklisted } from '../../lib/antispam';
-
-const redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: null });
 
 export default async function handler(req, res) {
   const token = req.cookies.token;

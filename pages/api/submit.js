@@ -4,17 +4,17 @@ import { containsBadWords, findBadWord, findAllBadWords } from '../../lib/badwor
 import { checkSpam, isFormSubmissionActive } from '../../lib/antispam';
 
 const DEPARTMENTS = {
-  'ib': { name: 'IB', webhook: process.env.WEBHOOK_REPORT_IB, emoji: '🕵️', roleId: '1398200840900055071', roleId2: '1520504887497064639' },
-  'cid': { name: 'CID', webhook: process.env.WEBHOOK_REPORT_CID, emoji: '🔍', roleId: '1398200760843374652', roleId2: '1520680049655676948' },
-  'fa': { name: 'FA', webhook: process.env.WEBHOOK_REPORT_FA, emoji: '🆓', roleId: '1398200891353468928', roleId2: '1520680052176715876' },
-  'hrt': { name: 'HRT', webhook: process.env.WEBHOOK_REPORT_HRT, emoji: '🛡️', roleId: '1398201557635567636', roleId2: '1520680047038435358' },
-  'atf': { name: 'ATF', webhook: process.env.WEBHOOK_REPORT_ATF, emoji: '💥', roleId: '1520680054731051159', roleId2: '1398201048598057041' },
-  'af': { name: 'AF', webhook: process.env.WEBHOOK_REPORT_AF, emoji: '✈️', roleId: '1398200952602755103', roleId2: '1532529633088635041' },
-  'ocu': { name: 'OCU', webhook: process.env.WEBHOOK_REPORT_OCU, emoji: '⚖️', roleId: '1520680060808331294', roleId2: '1418771091291115631' },
-  'dea': { name: 'DEA', webhook: process.env.WEBHOOK_REPORT_DEA, emoji: '💊', roleId: '1398201115379761283', roleId2: '1274110499356934209' },
-  'fna': { name: 'FNA', webhook: process.env.WEBHOOK_REPORT_FNA, emoji: '📚', roleId: '1520680066445742232', roleId2: '1385530645186613311' },
-  'nsb': { name: 'NSB', webhook: process.env.WEBHOOK_REPORT_NSB, emoji: '🏛️', roleId: '1520680069415174275', roleId2: '1398201167154122752' },
-  'trainee': { name: 'Trainee', webhook: process.env.WEBHOOK_REPORT_TRAINEE, emoji: '📖', roleId: '1385530645186613311', roleId2: '1520680066445742232' }
+  'ib': { name: 'IB', webhook: process.env.WEBHOOK_REPORT_IB, emoji: '🕵️' },
+  'cid': { name: 'CID', webhook: process.env.WEBHOOK_REPORT_CID, emoji: '🔍' },
+  'fa': { name: 'FA', webhook: process.env.WEBHOOK_REPORT_FA, emoji: '🆓' },
+  'hrt': { name: 'HRT', webhook: process.env.WEBHOOK_REPORT_HRT, emoji: '🛡️' },
+  'atf': { name: 'ATF', webhook: process.env.WEBHOOK_REPORT_ATF, emoji: '💥' },
+  'af': { name: 'AF', webhook: process.env.WEBHOOK_REPORT_AF, emoji: '✈️' },
+  'ocu': { name: 'OCU', webhook: process.env.WEBHOOK_REPORT_OCU, emoji: '⚖️' },
+  'dea': { name: 'DEA', webhook: process.env.WEBHOOK_REPORT_DEA, emoji: '💊' },
+  'fna': { name: 'FNA', webhook: process.env.WEBHOOK_REPORT_FNA, emoji: '📚' },
+  'nsb': { name: 'NSB', webhook: process.env.WEBHOOK_REPORT_NSB, emoji: '🏛️' },
+  'trainee': { name: 'Trainee', webhook: process.env.WEBHOOK_REPORT_TRAINEE, emoji: '📖' }
 };
 
 const TRANSFER_WEBHOOKS = {
@@ -37,7 +37,7 @@ const webhooks = {
   transferToFib: process.env.WEBHOOK_TRANSFER_TO_FIB,
   weaponRequest: process.env.WEBHOOK_WEAPON_REQUEST,
   leave: process.env.WEBHOOK_LEAVE,
-};
+  withdrawal: process.env.WEBHOOK_WITHDRAWAL
 };
 
 async function sendToDiscord(webhookUrl, data, retries = 3) {
@@ -69,15 +69,12 @@ export default async function handler(req, res) {
   const user = verifyToken(token);
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
-  // Проверка остановки заявок
   const isActive = await isFormSubmissionActive();
   if (!isActive) return res.status(403).json({ error: '🚫 Подача заявок временно остановлена администрацией.' });
 
-  // Проверка бана
   const banned = await isBlacklisted(user.id);
   if (banned) return res.status(403).json({ error: '⛔ Ваш доступ к системе заявок заблокирован.' });
 
-  // Проверка спама
   const spamCheck = await checkSpam(user.id, user.username);
   if (spamCheck.isSpam) return res.status(429).json({ error: spamCheck.message });
 
@@ -91,7 +88,6 @@ export default async function handler(req, res) {
     const foundWords = findAllBadWords(allText);
     const foundWord = findBadWord(allText);
     
-    await sendBanWordAlert(user, username, foundWord || foundWords.join(', '), allText, type, req);
     await addToBlacklist(user.id, username, `Банворд: ${foundWord || foundWords.join(', ')}`);
     
     return res.status(403).json({ error: `⛔ Ваша заявка содержит запрещённое слово "${foundWord}". Доступ к системе заблокирован.` });
@@ -100,46 +96,32 @@ export default async function handler(req, res) {
   let webhookUrl;
   let roleMentions = '';
 
-  // Обработка всех типов форм
-  if (type === 'reinstatement') {
-    webhookUrl = webhooks.reinstatement;
-    if (!webhookUrl) return res.status(500).json({ error: 'Вебхук для восстановления не настроен' });
+  if (type === 'withdrawal') {
+    webhookUrl = webhooks.withdrawal;
+    if (!webhookUrl) return res.status(500).json({ error: 'Вебхук для снятия ЧС не настроен' });
     roleMentions = '<@&1274110499356934211>';
+  } else if (type === 'reinstatement') {
+    webhookUrl = webhooks.reinstatement;
   } else if (type === 'transferToFib') {
     webhookUrl = webhooks.transferToFib;
-    if (!webhookUrl) return res.status(500).json({ error: 'Вебхук для перевода в FIB не настроен' });
-    roleMentions = '<@&1274110499356934211>';
   } else if (type === 'weaponRequest') {
     webhookUrl = webhooks.weaponRequest;
-    if (!webhookUrl) return res.status(500).json({ error: 'Вебхук для спец вооружения не настроен' });
-    roleMentions = '<@&1274110499356934211>';
   } else if (type === 'leave') {
     webhookUrl = webhooks.leave;
-    if (!webhookUrl) return res.status(500).json({ error: 'Вебхук для отпуска не настроен' });
-    roleMentions = '<@&1274110499356934211>';
   } else if (type === 'report') {
     const dept = DEPARTMENTS[department];
     if (!dept) return res.status(400).json({ error: 'Выберите корректный отдел' });
     webhookUrl = dept.webhook;
-    if (!webhookUrl) return res.status(500).json({ error: `Вебхук для "${dept.name}" не настроен` });
-    if (dept.roleId) roleMentions += `<@&${dept.roleId}> `;
-    if (dept.roleId2) roleMentions += `<@&${dept.roleId2}>`;
   } else if (type === 'transfer') {
     const deptKey = targetDepartment;
     if (!deptKey || !TRANSFER_WEBHOOKS[deptKey]) return res.status(400).json({ error: 'Некорректный отдел' });
     webhookUrl = TRANSFER_WEBHOOKS[deptKey];
-    const deptInfo = DEPARTMENTS[deptKey];
-    if (deptInfo && deptInfo.roleId) roleMentions += `<@&${deptInfo.roleId}> `;
-    if (deptInfo && deptInfo.roleId2) roleMentions += `<@&${deptInfo.roleId2}>`;
   } else if (type === 'highrank') {
     webhookUrl = webhooks.highrank;
-    roleMentions = '<@&1289343511354671125>';
   } else if (type === 'resignation') {
     webhookUrl = webhooks.resignation;
-    roleMentions = '<@&1274110499356934211>';
   } else {
     webhookUrl = webhooks.promotion;
-    roleMentions = '<@&1274110499356934211>';
   }
 
   const embed = {
@@ -147,7 +129,6 @@ export default async function handler(req, res) {
     color: getFormColor(type),
     author: { name: username, icon_url: `https://cdn.discordapp.com/avatars/${userId}/${user.avatar}.png` },
     fields: buildFields(type, department, targetDepartment, formData, userId, username),
-    footer: { text: 'Majestic FIB Forms • ' + new Date().toLocaleDateString('ru-RU') },
     timestamp: new Date().toISOString()
   };
 
@@ -161,6 +142,7 @@ export default async function handler(req, res) {
 }
 
 function getFormTitle(type, department, targetDepartment) {
+  if (type === 'withdrawal') return '🚫 Снятие ЧС';
   if (type === 'reinstatement') return '🔁 Восстановление';
   if (type === 'transferToFib') return '🏛️ Перевод в FIB';
   if (type === 'weaponRequest') return '🔫 Спец Вооружение';
@@ -174,7 +156,7 @@ function getFormTitle(type, department, targetDepartment) {
 
 function getFormColor(type) {
   const colors = {
-    'reinstatement': 0x00FFFF, 'transferToFib': 0x00BFFF, 'weaponRequest': 0xFF0000,
+    'withdrawal': 0xFF69B4, 'reinstatement': 0x00FFFF, 'transferToFib': 0x00BFFF, 'weaponRequest': 0xFF0000,
     'leave': 0x00FF00, 'promotion': 0x4CAF50, 'transfer': 0x2196F3, 'report': 0xFF9800,
     'highrank': 0xFF69B4, 'resignation': 0xDC3545
   };
@@ -187,13 +169,32 @@ function buildFields(type, department, targetDepartment, data, userId, username)
     { name: '🆔 Discord ID', value: userId, inline: true }
   ];
 
+  if (type === 'withdrawal') {
+    return [
+      { name: '👤 Имя Фамилия + Статик', value: data.fullName || 'Не указано', inline: false },
+      { name: '🚨 Причина ЧС', value: data.reason || 'Не указана', inline: false },
+      { name: '📅 Дата выдачи ЧС', value: data.date || 'Не указана', inline: false },
+      ...baseFields
+    ];
+  }
+
+  if (type === 'weaponRequest') {
+    return [
+      { name: '👤 Имя Фамилия + Статик', value: data.fullName || 'Не указано', inline: false },
+      { name: '📌 Ваш ранг', value: data.rank || 'Не указан', inline: false },
+      { name: '🏢 Ваш отдел', value: data.department || 'Не указан', inline: false },
+      { name: '🔫 Предмет на выбор', value: data.item || 'Не указан', inline: false },
+      ...baseFields
+    ];
+  }
+
   if (type === 'reinstatement') {
     return [
       { name: '👤 Имя Фамилия | Статик ID', value: data.fullName || 'Не указано', inline: false },
       { name: '📌 Ранг на момент увольнения', value: data.rank || 'Не указан', inline: false },
-      { name: '📸 Доказательства и причины', value: data.proof || 'Не указано', inline: false },
+      { name: '📸 Доказательства', value: data.proof || 'Не указано', inline: false },
       { name: '⚠️ Уволен после Ban/Warn?', value: data.wasBannedWarned || 'Не указано', inline: false },
-      ...(data.wasBannedWarned === 'yes' ? [{ name: '🔗 Одобрение State Fraction', value: data.approvalLink || 'Не указано', inline: false }] : []),
+      ...(data.wasBannedWarned === 'yes' ? [{ name: '🔗 Одобрение', value: data.approvalLink || 'Не указано', inline: false }] : []),
       ...baseFields
     ];
   }
@@ -201,17 +202,8 @@ function buildFields(type, department, targetDepartment, data, userId, username)
   if (type === 'transferToFib') {
     return [
       { name: '👤 Имя Фамилия | Статик ID', value: data.fullName || 'Не указано', inline: false },
-      { name: '✅ Одобрение от начальства', value: data.approval || 'Не указано', inline: false },
+      { name: '✅ Одобрение', value: data.approval || 'Не указано', inline: false },
       { name: '📸 Доказательство ранга', value: data.rankProof || 'Не указано', inline: false },
-      ...baseFields
-    ];
-  }
-
-  if (type === 'weaponRequest') {
-    return [
-      { name: '📌 Ваш ранг', value: data.rank || 'Не указан', inline: false },
-      { name: '🏢 Ваш отдел', value: data.department || 'Не указан', inline: false },
-      { name: '🔫 Предмет на выбор', value: data.item || 'Не указан', inline: false },
       ...baseFields
     ];
   }
@@ -227,11 +219,5 @@ function buildFields(type, department, targetDepartment, data, userId, username)
     ];
   }
 
-  // Остальные формы (report, transfer, promotion, etc.)
-  // ... (оставь код из прошлой версии для них)
   return [...baseFields, ...Object.entries(data).map(([key, value]) => ({ name: key, value: String(value) || 'Не указано', inline: false }))];
-}
-
-async function sendBanWordAlert(user, username, badWords, fullText, type, req) {
-  // ... (оставь код из прошлой версии)
 }

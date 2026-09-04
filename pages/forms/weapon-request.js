@@ -4,22 +4,29 @@ import { useRouter } from 'next/router';
 
 export default function WeaponRequestForm() {
   const router = useRouter();
+  const [nickname, setNickname] = useState('');
   const [formData, setFormData] = useState({ rank: '', department: '', item: '' });
 
-  const departments = [
-    'IB', 'CID', 'FA', 'HRT', 'ATF', 'AF', 'OCU', 'DEA', 'FNA', 'NSB'
-  ];
+  const departments = ['IB', 'CID', 'FA', 'HRT', 'ATF', 'AF', 'OCU', 'DEA', 'FNA', 'NSB'];
 
   const items = [
     'Пистолет', 'Автомат', 'Снайперская винтовка', 'Дробовик', 'Бронежилет', 'Граната', 'Спец. щит'
   ];
+
+  useEffect(() => {
+    fetch('/api/profile')
+      .then(res => res.json())
+      .then(data => {
+        if (data.nickname) setNickname(data.nickname);
+      });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const res = await fetch('/api/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'weaponRequest', ...formData })
+      body: JSON.stringify({ type: 'weaponRequest', fullName: nickname, ...formData })
     });
     if (res.ok) { alert('✅ Запрос на спец вооружение отправлен!'); router.push('/dashboard'); }
     else { const err = await res.json(); alert('❌ ' + err.error); }
@@ -30,6 +37,10 @@ export default function WeaponRequestForm() {
       <div className="form-container">
         <h1>🔫 Спец Вооружение</h1>
         <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Имя Фамилия + Статик</label>
+            <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} required placeholder="Например: Sanya Suspect 270726" />
+          </div>
           <div className="form-group">
             <label>📌 Ваш ранг</label>
             <select value={formData.rank} onChange={(e) => setFormData({...formData, rank: e.target.value})} required>
@@ -64,9 +75,9 @@ export default function WeaponRequestForm() {
         h1 { color: white; margin-bottom: 30px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; color: #aaa; }
-        select {
+        input, select {
           width: 100%; padding: 12px; background: #222; border: 1px solid #444;
-          color: white; border-radius: 8px; box-sizing: border-box; appearance: none;
+          color: white; border-radius: 8px; box-sizing: border-box;
         }
         select option { background: #222; }
         .submit-btn {

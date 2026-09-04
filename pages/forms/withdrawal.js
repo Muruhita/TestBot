@@ -36,11 +36,11 @@ export default function WithdrawalForm() {
             <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} required placeholder="Например: Sanya Suspect 270726" />
           </div>
           <div className="form-group">
-            <label>Причина ЧС (если известно)</label>
+            <label>Причина, по которой был выдан ЧС (если известна)</label>
             <textarea value={formData.reason} onChange={(e) => setFormData({...formData, reason: e.target.value})} rows="4" placeholder="Введите причину..." />
           </div>
           <div className="form-group">
-            <label>Дата выдачи ЧС (если известно)</label>
+            <label>Дата, когда был выдан ЧС (если известна)</label>
             <input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} />
           </div>
           <button type="submit" className="submit-btn">📤 Отправить</button>
@@ -51,50 +51,25 @@ export default function WithdrawalForm() {
         .form-container {
           max-width: 600px;
           margin: 0 auto;
-          background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: #161616;
+          border: 1px solid #333;
           padding: 40px;
           border-radius: 20px;
           animation: fadeIn 0.5s ease;
         }
-        h1 {
-          color: white;
-          margin-bottom: 30px;
-          text-align: center;
-        }
-        .form-group {
-          margin-bottom: 20px;
-        }
-        label {
-          display: block;
-          margin-bottom: 8px;
-          color: #aaa;
-        }
+        h1 { color: white; margin-bottom: 30px; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #aaa; }
         input, textarea {
-          width: 100%;
-          padding: 12px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          color: white;
-          border-radius: 8px;
-          box-sizing: border-box;
+          width: 100%; padding: 12px; background: #222; border: 1px solid #444;
+          color: white; border-radius: 8px; box-sizing: border-box;
         }
         .submit-btn {
-          width: 100%;
-          padding: 15px;
-          background: #fff;
-          color: #000;
-          border: none;
-          border-radius: 10px;
-          cursor: pointer;
-          font-weight: bold;
-          font-size: 16px;
-          transition: all 0.3s;
+          width: 100%; padding: 15px; background: #fff; color: #000;
+          border: none; border-radius: 10px; cursor: pointer; font-weight: bold;
+          font-size: 16px; transition: all 0.3s;
         }
-        .submit-btn:hover {
-          background: #ccc;
-        }
+        .submit-btn:hover { background: #ccc; }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
