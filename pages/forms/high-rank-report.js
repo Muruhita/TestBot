@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Layout from '../../components/Layout';
 
 const RANK_OPTIONS = [
   '1-2 ранг', '2-3 ранг', '3-4 ранг', '4-5 ранг', '5-6 ранг',
@@ -71,108 +72,134 @@ export default function HighRankReportForm() {
   }
 
   return (
-    <div className="form-page">
-      <button onClick={() => router.push('/dashboard')} className="back-btn">
-        ← Назад к выбору
-      </button>
-      
-      <div className="form-container">
-        <h1>🌟 Отчёт на повышение (Хай Ранги)</h1>
+    <Layout>
+      <div className="form-page">
+        <div className="bg-gradient"></div>
         
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Имя Фамилия + Статик *</label>
-            <input 
-              type="text" 
-              required
-              value={formData.fullName}
-              onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-              placeholder="Например: Sanya Suspect 270726"
-            />
-          </div>
+        <button onClick={() => router.push('/dashboard')} className="back-btn">
+          ← Назад к выбору
+        </button>
+        
+        <div className="form-container">
+          <h1>🌟 Отчёт на повышение (Хай Ранги)</h1>
+          
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label>Имя Фамилия + Статик *</label>
+              <input 
+                type="text" 
+                required
+                value={formData.fullName}
+                onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                placeholder="Например: Sanya Suspect 270726"
+              />
+            </div>
 
-          <div className="form-group">
-            <label>С какого на какой ранг вы повышаетесь *</label>
-            <select
-              required
-              value={formData.rankRange}
-              onChange={(e) => setFormData({...formData, rankRange: e.target.value})}
-              className="select-input"
-            >
-              <option value="">-- Выберите диапазон рангов --</option>
-              {RANK_OPTIONS.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </div>
+            <div className="form-group">
+              <label>С какого на какой ранг вы повышаетесь *</label>
+              <select
+                required
+                value={formData.rankRange}
+                onChange={(e) => setFormData({...formData, rankRange: e.target.value})}
+                className="select-input"
+              >
+                <option value="">-- Выберите диапазон рангов --</option>
+                {RANK_OPTIONS.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
 
-          <div className="form-group">
-            <label>Ссылка на проделанную работу *</label>
-            <textarea 
-              required
-              value={formData.workLink}
-              onChange={(e) => setFormData({...formData, workLink: e.target.value})}
-              placeholder="Вставьте ссылки на ваши отчёты, посты или другие доказательства работы..."
-              rows="5"
-            />
-          </div>
+            <div className="form-group">
+              <label>Ссылка на проделанную работу *</label>
+              <textarea 
+                required
+                value={formData.workLink}
+                onChange={(e) => setFormData({...formData, workLink: e.target.value})}
+                placeholder="Вставьте ссылки на ваши отчёты, посты или другие доказательства работы..."
+                rows="5"
+              />
+            </div>
 
-          <div className="form-group">
-            <label>Discord ID</label>
-            <input 
-              type="text" 
-              value={`${user.username} (${user.id})`}
-              disabled 
-              className="disabled-input" 
-            />
-          </div>
+            <div className="form-group">
+              <label>Discord ID</label>
+              <input 
+                type="text" 
+                value={`${user.username} (${user.id})`}
+                disabled 
+                className="disabled-input" 
+              />
+            </div>
 
-          <button type="submit" className="submit-btn" disabled={submitting}>
-            {submitting ? '⏳ Отправка...' : '📤 Отправить отчёт'}
-          </button>
-        </form>
+            <button type="submit" className="submit-btn" disabled={submitting}>
+              {submitting ? '⏳ Отправка...' : '📤 Отправить отчёт'}
+            </button>
+          </form>
+        </div>
       </div>
 
       <style jsx>{`
         .form-page {
-          min-height: 100vh;
-          background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
+          min-height: calc(100vh - 60px);
           padding: 30px;
+          position: relative;
         }
+
+        .bg-gradient {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: -1;
+          background: linear-gradient(135deg, #0a0a0a 20%, #1a1a3e 50%, #0a0a0a 80%);
+        }
+
         .back-btn {
           background: rgba(255, 255, 255, 0.08);
-          color: white;
+          color: #aaa;
           border: 1px solid rgba(255, 255, 255, 0.15);
           padding: 10px 20px;
           border-radius: 8px;
           cursor: pointer;
           margin-bottom: 20px;
-          transition: all 0.2s;
+          transition: all 0.3s;
           font-size: 14px;
+          position: relative;
+          z-index: 10;
         }
         .back-btn:hover {
           background: rgba(255, 255, 255, 0.15);
+          color: white;
+          transform: translateY(-2px);
         }
+
         .form-container {
           max-width: 600px;
           margin: 0 auto;
           background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(10px);
+          backdrop-filter: blur(15px);
           border-radius: 20px;
           padding: 40px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          position: relative;
+          z-index: 10;
+          animation: fadeIn 0.5s ease;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
         h1 {
           color: white;
           margin-bottom: 30px;
           font-size: 28px;
+          text-align: center;
         }
+
         .form-group {
           margin-bottom: 20px;
         }
         label {
           display: block;
-          color: #8b8ba7;
+          color: #888;
           margin-bottom: 8px;
           font-size: 14px;
           font-weight: 500;
@@ -193,57 +220,60 @@ export default function HighRankReportForm() {
           cursor: pointer;
         }
         .select-input option {
-          background: #1a1a3e;
+          background: #1a1a1a;
           color: white;
         }
         input:focus, textarea:focus, .select-input:focus {
           outline: none;
-          border-color: #5865F2;
+          border-color: #fff;
           background: rgba(255, 255, 255, 0.08);
         }
         .disabled-input {
           opacity: 0.5;
           cursor: not-allowed;
-          background: rgba(255, 255, 255, 0.03);
+          background: rgba(255, 255, 255, 0.02);
         }
         textarea {
           resize: vertical;
           min-height: 100px;
         }
+
         .submit-btn {
           width: 100%;
-          padding: 14px;
-          background: #5865F2;
-          color: white;
+          padding: 15px;
+          background: #fff;
+          color: #000;
           border: none;
           border-radius: 10px;
           font-size: 16px;
-          font-weight: 600;
+          font-weight: 700;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.3s;
           margin-top: 10px;
         }
         .submit-btn:hover:not(:disabled) {
-          background: #4752C4;
-          transform: translateY(-1px);
+          background: #ccc;
+          transform: translateY(-2px);
+          box-shadow: 0 5px 20px rgba(255,255,255,0.2);
         }
         .submit-btn:disabled {
           opacity: 0.5;
           cursor: not-allowed;
         }
+
         .loading-container {
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           min-height: 100vh;
-          background: #0a0a1a;
+          background: #0a0a0a;
         }
         .loading-spinner {
           width: 40px;
           height: 40px;
-          border: 3px solid rgba(88, 101, 242, 0.2);
-          border-top-color: #5865F2;
+          border: 3px solid rgba(255, 255, 255, 0.2);
+          border-top-color: #fff;
           border-radius: 50%;
           animation: spin 1s linear infinite;
           margin-bottom: 15px;
@@ -252,9 +282,14 @@ export default function HighRankReportForm() {
           to { transform: rotate(360deg); }
         }
         .loading-container p {
-          color: #8b8ba7;
+          color: #888;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-    </div>
+    </Layout>
   );
 }
