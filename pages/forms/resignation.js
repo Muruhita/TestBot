@@ -10,9 +10,19 @@ export default function ResignationForm() {
   const [formData, setFormData] = useState({ fullName: '', screenshot: '' });
 
   useEffect(() => {
-    fetch('/api/me').then(res => res.json()).then(data => {
-      if (!data.user) { router.push('/'); return; }
-      setUser(data.user); setLoading(false);
+    Promise.all([
+      fetch('/api/me').then(res => res.json()),
+      fetch('/api/profile').then(res => res.json())
+    ]).then(([meData, profileData]) => {
+      if (!meData.user) {
+        router.push('/');
+        return;
+      }
+      setUser(meData.user);
+      if (profileData.nickname) {
+        setFormData(prev => ({ ...prev, fullName: profileData.nickname }));
+      }
+      setLoading(false);
     });
   }, []);
 
@@ -35,14 +45,7 @@ export default function ResignationForm() {
     finally { setSubmitting(false); }
   };
 
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Загрузка...</p>
-      </div>
-    );
-  }
+  if (loading) return <div className="loading-container"><div className="loading-spinner"></div><p>Загрузка...</p></div>;
 
   return (
     <Layout>
@@ -69,7 +72,6 @@ export default function ResignationForm() {
           </form>
         </div>
       </div>
-
       <style jsx>{`
         .form-page { min-height: calc(100vh - 60px); padding: 30px; }
         .back-btn { background: rgba(255, 255, 255, 0.08); color: #aaa; border: 1px solid rgba(255, 255, 255, 0.15); padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; transition: all 0.3s; font-size: 14px; }
@@ -82,6 +84,10 @@ export default function ResignationForm() {
         .disabled-input { opacity: 0.5; cursor: not-allowed; }
         .submit-btn { width: 100%; padding: 15px; background: #fff; color: #000; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: all 0.3s; }
         .submit-btn:hover { background: #ccc; transform: translateY(-2px); }
+        .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #0a0a0a; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-container p { color: #888; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
     </Layout>
