@@ -18,120 +18,69 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="dashboard-wrapper">
-        <h1 className="page-title">📝 Формы</h1>
-        
-        <div className="cards-grid">
-          {forms.map((form, index) => (
-            <div 
-              key={index} 
-              className="card" 
-              onClick={() => router.push(form.path)}
-              style={{ animationDelay: `${index * 0.12}s` }}
-            >
-              <div className="card-icon">{form.icon}</div>
-              <h3>{form.title}</h3>
-              <p>{form.desc}</p>
-              <div className="card-glow"></div>
-            </div>
-          ))}
-        </div>
+      <h1 className="page-title">📝 Формы</h1>
+      <div className="cards-grid">
+        {forms.map((form, index) => (
+          <div key={index} className="card" onClick={() => router.push(form.path)} style={{ animationDelay: `${index * 0.08}s` }}>
+            <div className="card-icon">{form.icon}</div>
+            <h3>{form.title}</h3>
+            <p>{form.desc}</p>
+          </div>
+        ))}
       </div>
 
       <style jsx>{`
-        .dashboard-wrapper {
-          position: relative;
-          z-index: 10; /* чтобы контент был выше фона */
-        }
-
-        /* ===== Заголовок ===== */
         .page-title {
-          font-size: 40px;
-          font-weight: 800;
+          font-size: 32px;
+          margin-bottom: 30px;
           text-align: center;
           color: #fff;
-          margin-bottom: 40px;
-          text-shadow: 0 4px 30px rgba(0,0,0,0.5);
-          animation: titleGlow 3s ease-in-out infinite alternate;
         }
-
-        @keyframes titleGlow {
-          from { text-shadow: 0 4px 30px rgba(88, 101, 242, 0.5); }
-          to { text-shadow: 0 4px 30px rgba(255, 105, 180, 0.7); }
-        }
-
-        /* ===== Карточки ===== */
         .cards-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 24px;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 20px;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
         }
-
         .card {
-          position: relative;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
+          background: #161616;
+          border: 1px solid #333;
+          border-radius: 16px;
           padding: 30px;
           cursor: pointer;
           text-align: center;
-          overflow: hidden;
-          backdrop-filter: blur(10px);
-          transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s ease, border-color 0.4s ease;
-          opacity: 0;
-          animation: cardIn 0.6s ease forwards;
+          opacity: 0; /* скрываем до начала анимации */
+          animation: cardIn 0.5s ease forwards;
+          transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
-
         .card:hover {
-          transform: translateY(-10px) scale(1.02);
+          transform: translateY(-8px);
           border-color: #5865F2;
-          box-shadow: 0 20px 40px rgba(88, 101, 242, 0.4);
+          box-shadow: 0 15px 30px rgba(88, 101, 242, 0.25);
         }
-
         .card-icon {
-          font-size: 56px;
-          margin-bottom: 16px;
-          transition: transform 0.3s ease;
+          font-size: 48px;
+          margin-bottom: 15px;
         }
-
-        .card:hover .card-icon {
-          transform: scale(1.2) rotate(8deg);
-        }
-
         .card h3 {
+          color: white;
           font-size: 18px;
-          color: #fff;
-          margin-bottom: 8px;
+          margin-bottom: 10px;
         }
-
         .card p {
+          color: #888;
           font-size: 14px;
-          color: #aaa;
         }
 
-        /* Свечение внутри карточки */
-        .card-glow {
-          position: absolute;
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(88,101,242,0.3), transparent 70%);
-          top: -30px;
-          right: -30px;
-          opacity: 0;
-          transition: opacity 0.4s ease;
-        }
-
-        .card:hover .card-glow {
-          opacity: 1;
-        }
-
+        /* Каскадное появление карточек */
         @keyframes cardIn {
-          from { opacity: 0; transform: translateY(40px) scale(0.9); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
     </Layout>
