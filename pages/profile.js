@@ -6,15 +6,25 @@ export default function Profile() {
   const [nickname, setNickname] = useState('');
   const [banned, setBanned] = useState(false);
   const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/profile')
       .then(res => res.json())
       .then(data => {
-        if (data.error) return;
+        if (data.error) {
+          setStatus(data.error);
+          setLoading(false);
+          return;
+        }
         setUser(data.user);
         setNickname(data.nickname || '');
         setBanned(data.banned);
+        setLoading(false);
+      })
+      .catch(() => {
+        setStatus('Ошибка загрузки профиля. Проверьте подключение к Redis.');
+        setLoading(false);
       });
   }, []);
 
@@ -32,7 +42,10 @@ export default function Profile() {
     <Layout>
       <div className="profile-container">
         <h1>👤 Профиль</h1>
-        {user && (
+        
+        {loading && <p className="loading-text">Загрузка данных...</p>}
+        
+        {!loading && user && (
           <div className="profile-card">
             <img src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} alt="Avatar" className="avatar" />
             <h2>{user.username}</h2>
@@ -48,6 +61,10 @@ export default function Profile() {
             </div>
           </div>
         )}
+
+        {!loading && !user && (
+          <p className="error-text">Не удалось загрузить данные профиля. {status}</p>
+        )}
       </div>
 
       <style jsx>{`
@@ -55,6 +72,18 @@ export default function Profile() {
           max-width: 500px;
           margin: 0 auto;
           text-align: center;
+        }
+        h1 {
+          margin-bottom: 30px;
+          color: white;
+        }
+        .loading-text {
+          color: #888;
+          font-size: 18px;
+        }
+        .error-text {
+          color: #ff4444;
+          font-size: 16px;
         }
         .profile-card {
           background: #161616;
@@ -68,6 +97,15 @@ export default function Profile() {
           height: 100px;
           border-radius: 50%;
           margin-bottom: 20px;
+          border: 2px solid #555;
+        }
+        h2 {
+          color: white;
+          margin-bottom: 10px;
+        }
+        .profile-card > p {
+          color: #888;
+          margin-bottom: 10px;
         }
         .status {
           display: inline-block;
@@ -119,6 +157,8 @@ export default function Profile() {
         .status-msg {
           margin-top: 10px;
           color: #4CAF50;
+          font-size: 14px;
+          text-align: center;
         }
         @keyframes fadeIn {
           from { opacity: 0; }
