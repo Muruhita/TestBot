@@ -74,13 +74,13 @@ export default function PromotionForm() {
   return (
     <Layout>
       <div className="form-page">
-        {/* Анимированный фон */}
-        <div className="animated-bg">
-          <div className="orb orb-1"></div>
-          <div className="orb orb-2"></div>
-          <div className="orb orb-3"></div>
-        </div>
-
+        {/* Фон на весь экран, не зависит от контента */}
+        <div className="bg-gradient"></div>
+        <div className="bg-orb orb-1"></div>
+        <div className="bg-orb orb-2"></div>
+        <div className="bg-orb orb-3"></div>
+        <div className="bg-orb orb-4"></div>
+        
         <button onClick={() => router.push('/dashboard')} className="back-btn">
           ← Назад к выбору
         </button>
@@ -145,65 +145,79 @@ export default function PromotionForm() {
 
       <style jsx>{`
         .form-page {
-          min-height: 100vh;
           position: relative;
+          min-height: calc(100vh - 60px); /* Высота с учетом хедера */
           overflow: hidden;
-          background: #0a0a0a;
-          color: white;
           padding: 30px;
+          z-index: 1;
         }
 
-        /* Анимированный фон */
-        .animated-bg {
-          position: absolute;
+        /* ===== Фон на весь экран ===== */
+        .bg-gradient {
+          position: fixed;
           top: 0;
           left: 0;
-          width: 100%;
-          height: 100%;
-          z-index: 0;
-          pointer-events: none;
+          width: 100vw;
+          height: 100vh;
+          z-index: -1;
+          background: linear-gradient(135deg, #0a0a0a 20%, #1a1a3e 50%, #0a0a0a 80%);
+          animation: gradientShift 15s ease infinite;
         }
-        .orb {
-          position: absolute;
+        .bg-orb {
+          position: fixed;
           border-radius: 50%;
-          filter: blur(80px);
-          opacity: 0.4;
-          animation: float 10s infinite ease-in-out;
+          filter: blur(100px);
+          opacity: 0.3;
+          z-index: -1;
+          animation: floatOrb 12s infinite ease-in-out;
         }
         .orb-1 {
-          width: 400px;
-          height: 400px;
-          background: #5865F2;
-          top: -100px;
-          left: -100px;
+          width: 500px;
+          height: 500px;
+          background: #3b82f6;
+          top: -15%;
+          left: -10%;
         }
         .orb-2 {
+          width: 400px;
+          height: 400px;
+          background: #9333ea;
+          bottom: -10%;
+          right: -5%;
+          animation-delay: -4s;
+        }
+        .orb-3 {
           width: 300px;
           height: 300px;
           background: #ffffff;
-          top: 50%;
-          right: -100px;
-          animation-delay: -2s;
+          top: 40%;
+          right: 30%;
+          opacity: 0.1;
+          animation-delay: -8s;
         }
-        .orb-3 {
-          width: 250px;
-          height: 250px;
-          background: #444;
-          bottom: -50px;
-          left: 50%;
-          animation-delay: -4s;
-        }
-        @keyframes float {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(30px, -50px) scale(1.1); }
+        .orb-4 {
+          width: 350px;
+          height: 350px;
+          background: #1e40af;
+          bottom: 20%;
+          left: 20%;
+          animation-delay: -6s;
         }
 
-        /* Кнопка назад */
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes floatOrb {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(40px, -50px) scale(1.1); }
+        }
+
+        /* ===== Кнопка назад ===== */
         .back-btn {
-          position: relative;
-          z-index: 10;
           background: rgba(255, 255, 255, 0.08);
-          color: white;
+          color: #aaa;
           border: 1px solid rgba(255, 255, 255, 0.15);
           padding: 10px 20px;
           border-radius: 8px;
@@ -211,33 +225,38 @@ export default function PromotionForm() {
           margin-bottom: 20px;
           transition: all 0.3s;
           font-size: 14px;
+          z-index: 10;
+          position: relative;
         }
         .back-btn:hover {
           background: rgba(255, 255, 255, 0.15);
+          color: white;
           transform: translateY(-2px);
         }
 
-        /* Стеклянный контейнер */
+        /* ===== Стеклянный контейнер ===== */
         .form-container {
           position: relative;
           z-index: 10;
           max-width: 600px;
           margin: 0 auto;
           background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(15px);
+          backdrop-filter: blur(20px);
           border-radius: 20px;
           padding: 40px;
           border: 1px solid rgba(255, 255, 255, 0.1);
           animation: fadeIn 0.5s ease;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
         h1 {
           color: white;
           margin-bottom: 30px;
           font-size: 28px;
           text-align: center;
+          text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        /* Поля */
+        /* ===== Поля ===== */
         .form-group {
           margin-bottom: 20px;
         }
@@ -282,7 +301,7 @@ export default function PromotionForm() {
           min-height: 100px;
         }
 
-        /* Кнопка отправки */
+        /* ===== Кнопка отправки ===== */
         .submit-btn {
           width: 100%;
           padding: 15px;
@@ -306,7 +325,7 @@ export default function PromotionForm() {
           cursor: not-allowed;
         }
 
-        /* Загрузка */
+        /* ===== Загрузка ===== */
         .loading-container {
           display: flex;
           flex-direction: column;
