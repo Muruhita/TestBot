@@ -122,7 +122,6 @@ export default function Profile() {
           padding: 40px 20px;
         }
 
-        /* Анимированный фон */
         .animated-bg {
           position: absolute;
           top: 0;
@@ -231,7 +230,6 @@ export default function Profile() {
           100% { transform: translateY(0) translateX(0); opacity: 0.8; }
         }
 
-        /* Контент профиля */
         .profile-container {
           position: relative;
           z-index: 10;
@@ -264,7 +262,7 @@ export default function Profile() {
           background: rgba(255, 255, 255, 0.03);
           backdrop-filter: blur(15px);
           border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 24px;
+          border-radius: 32px; /* Увеличено с 24px */
           padding: 40px;
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
@@ -324,7 +322,7 @@ export default function Profile() {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.15);
           color: white;
-          border-radius: 8px;
+          border-radius: 14px; /* Увеличено с 8px */
           box-sizing: border-box;
           transition: border-color 0.3s;
         }
@@ -344,7 +342,7 @@ export default function Profile() {
           background: #fff;
           color: #000;
           border: none;
-          border-radius: 10px;
+          border-radius: 12px; /* Увеличено с 10px */
           cursor: pointer;
           font-weight: bold;
           font-size: 16px;
